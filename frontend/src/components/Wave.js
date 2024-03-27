@@ -35,7 +35,7 @@ const Waveform = () => {
       barWidth: 4,
       barRadius: 4,
       responsive: true,
-      height: 150,
+      height: 100,
       // If true, normalize by the maximum peak instead of 1.0.
       normalize: true,
       // Use the PeakCache to improve rendering speed of large waveforms.
@@ -49,14 +49,15 @@ const Waveform = () => {
         }),
         TimelinePlugin.create({
           container: "#wave-timeline",
-          height: 50,
+          height: 25,
           notchPercentHeight: 50,
           primaryColor: "black",
           secondaryColor: "blue",
           primaryFontColor: "black",
           secondaryFontColor: "black",
-          fontSize:15,
-        })
+          fontSize: 14,
+          timeInterval: 0.1,
+        }),
       ],
     };
     wavesurfer.current = WaveSurfer.create(options);
@@ -64,7 +65,7 @@ const Waveform = () => {
     wavesurfer.current.load(
       "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"
     );
-   
+
     wavesurfer.current.on("ready", function () {
       // https://wavesurfer-js.org/docs/methods.html
       // wavesurfer.current.play();
@@ -76,8 +77,6 @@ const Waveform = () => {
         setVolume(volume);
       }
     });
-
-    
 
     console.log(wavesurfer.current);
     console.log("wave regions", wavesurfer.current.regions);
@@ -104,10 +103,20 @@ const Waveform = () => {
       console.log("region-created", region);
       console.log(regionsCreated);
       region.color = randomRgbColor();
+      let lastRegion;
+      if (regionsCreated.length === 0) {
+        lastRegion = 0;
+      } else {
+        lastRegion =
+          regionsCreated[regionsCreated.length - 1].attributes.label.split(
+            " "
+          )[1] - "0";
+      }
+
+      console.log("lastRegion", lastRegion);
       region.attributes = {
-        label: "Region",
+        label: "Region " + `${lastRegion + 1}`,
       };
-      region.content = "Region";
       let temp = [...regionsCreated, region];
 
       console.log("temp", temp);
@@ -120,9 +129,26 @@ const Waveform = () => {
     wavesurfer.current.playPause();
   };
 
-  const handleDelete = () => {
-    wavesurfer.current.clearRegions();
-    setRegionsCreated([]);
+  const handleDelete = (id) => {
+    console.log("delete", id);
+    wavesurfer.current.regions.list[id].remove();
+    let temp = [...regionsCreated];
+    temp = temp.filter((region) => region.id !== id);
+    // temp.forEach((region, index) => {
+    //   region.attributes = {
+    //     label: "Region " + `${index + 1}`,
+    //   };
+    // });
+    // Object.keys(wavesurfer.current.regions.list).forEach((key, index) => {
+    //   wavesurfer.current.regions.list[key].attributes = {
+    //     label: "Region " + `${index + 1}`,
+    //   };
+    //   console.log(wavesurfer.current.regions.list[key]);
+    // });
+
+    console.log(wavesurfer.current.regions.list);
+
+    setRegionsCreated(temp);
   };
 
   const onVolumeChange = (e) => {
@@ -138,40 +164,55 @@ const Waveform = () => {
   console.log("regions", regionsCreated);
 
   return (
-    <div>
-      <div id="waveform" ref={waveformRef} />
-      <div id="wave-timeline"/>
-      <div className="controls">
-        <button onClick={handlePlayPause}>{!playing ? "Play" : "Pause"}</button>
-        <button onClick={handleDelete}>Delete</button>
-        <input
-          type="range"
-          id="volume"
-          name="volume"
-          // waveSurfer recognize value of `0` same as `1`
-          //  so we need to set some zero-ish value for silence
-          min="0.01"
-          max="1"
-          step=".025"
-          onChange={onVolumeChange}
-          defaultValue={volume}
-        />
-        
-        <label htmlFor="volume">Volume</label>
+    <>
+      <div className="w-full ">
+        <div id="waveform" ref={waveformRef} />
+        <div id="wave-timeline" />
+        <div className="controls mt-4 flex flex-wrap items-center">
+          <button
+            onClick={handlePlayPause}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-1 rounded-sm w-[6rem] mr-4"
+          >
+            {!playing ? "Play" : "Pause"}
+          </button>
+          <div>
+            <input
+              type="range"
+              id="volume"
+              name="volume"
+              // waveSurfer recognize value of `0` same as `1`
+              //  so we need to set some zero-ish value for silence
+              min="0.01"
+              max="1"
+              step=".025"
+              onChange={onVolumeChange}
+              defaultValue={volume}
+            />
+
+            <label htmlFor="volume" className="ml-2 font-bold">
+              Volume
+            </label>
+          </div>
+        </div>
+        <div className="flex flex-row flex-wrap mt-6">
+          {regionsCreated.length > 0 &&
+            regionsCreated.map((region, index) => {
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    handleDelete(region.id);
+                  }}
+                  className="flex flex-row cursor-pointer  py-1 px-2 w-[6rem] justify-between items-center mr-2 mb-4 bg-gray-300 text-gray-600 text-sm font-medium rounded-sm"
+                >
+                  <p>{region.attributes.label}</p>
+                  <p>x</p>
+                </div>
+              );
+            })}
+        </div>
       </div>
-      {regionsCreated &&
-        regionsCreated.map((region, index) => {
-          return (
-            <div key={index}>
-              <p>Region {index + 1}</p>
-              <p>Start: {region.start}</p>
-              <p>End: {region.end}</p>
-              <p>Content: {region.content}</p>
-              <p>Color: {region.color}</p>
-            </div>
-          );
-        })}
-    </div>
+    </>
   );
 };
 
