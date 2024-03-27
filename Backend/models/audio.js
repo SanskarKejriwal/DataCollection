@@ -5,7 +5,17 @@ const audioSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    userList: [
+    timeStamps:[
+        {
+            startTime:{
+                type: Number,
+            },
+            endTime:{
+                type: Number,
+            }
+        }
+    ],
+    user:
         {
             age: {
                 type: Number,
@@ -38,7 +48,7 @@ const audioSchema = new mongoose.Schema({
                 default: 0
             } 
         }
-    ]
+    
 });
 
 const Audio = mongoose.model("Audio", audioSchema);
