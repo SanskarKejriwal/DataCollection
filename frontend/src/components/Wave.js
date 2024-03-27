@@ -103,8 +103,19 @@ const Waveform = () => {
       console.log("region-created", region);
       console.log(regionsCreated);
       region.color = randomRgbColor();
+      let lastRegion;
+      if (regionsCreated.length === 0) {
+        lastRegion = 0;
+      } else {
+        lastRegion =
+          regionsCreated[regionsCreated.length - 1].attributes.label.split(
+            " "
+          )[1] - "0";
+      }
+
+      console.log("lastRegion", lastRegion);
       region.attributes = {
-        label: "Region " + `${regionsCreated.length + 1}`,
+        label: "Region " + `${lastRegion + 1}`,
       };
       let temp = [...regionsCreated, region];
 
@@ -123,17 +134,17 @@ const Waveform = () => {
     wavesurfer.current.regions.list[id].remove();
     let temp = [...regionsCreated];
     temp = temp.filter((region) => region.id !== id);
-    temp.forEach((region, index) => {
-      region.attributes = {
-        label: "Region " + `${index + 1}`,
-      };
-    });
-    Object.keys(wavesurfer.current.regions.list).forEach((key, index) => {
-      wavesurfer.current.regions.list[key].attributes = {
-        label: "Region " + `${index + 1}`,
-      };
-      console.log(wavesurfer.current.regions.list[key]);
-    });
+    // temp.forEach((region, index) => {
+    //   region.attributes = {
+    //     label: "Region " + `${index + 1}`,
+    //   };
+    // });
+    // Object.keys(wavesurfer.current.regions.list).forEach((key, index) => {
+    //   wavesurfer.current.regions.list[key].attributes = {
+    //     label: "Region " + `${index + 1}`,
+    //   };
+    //   console.log(wavesurfer.current.regions.list[key]);
+    // });
 
     console.log(wavesurfer.current.regions.list);
 
