@@ -15,12 +15,13 @@ function randomRgbColor() {
   return `rgb(${r},${g},${b},0.3)`;
 }
 
-const Waveform = () => {
+const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
   const [playing, setPlay] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  const [regionsCreated, setRegionsCreated] = useState([]); // [start, end, content, color
+  const [zoom, setZoom] = useState(300);
+  // [start, end, content, color
 
   // create new WaveSurfer instance
   // On component mount and when url changes
@@ -32,8 +33,6 @@ const Waveform = () => {
       waveColor: "black",
       progressColor: "OrangeRed",
       cursorColor: "OrangeRed",
-      barWidth: 4,
-      barRadius: 4,
       responsive: true,
       height: 100,
       // If true, normalize by the maximum peak instead of 1.0.
@@ -62,9 +61,8 @@ const Waveform = () => {
     };
     wavesurfer.current = WaveSurfer.create(options);
 
-    wavesurfer.current.load(
-      "https://api.twilio.com//2010-04-01/Accounts/AC25aa00521bfac6d667f13fec086072df/Recordings/RE6d44bc34911342ce03d6ad290b66580c.mp3"
-    );
+    wavesurfer.current.load(keyDetails.url);
+    wavesurfer.current.zoom(zoom);
 
     wavesurfer.current.on("ready", function () {
       // https://wavesurfer-js.org/docs/methods.html
@@ -90,15 +88,7 @@ const Waveform = () => {
       e.stopPropagation();
       wavesurfer.current.play(region.start, region.end);
     });
-    wavesurfer.current.on("region-dblclick", function (region, e) {
-      console.log("region-dblclick", region);
-    });
-    wavesurfer.current.on("region-mouseleave", function (region, e) {
-      console.log("region-mouseleave", region);
-    });
-    wavesurfer.current.on("region-mouseenter", function (region, e) {
-      console.log("region-mouseenter", region);
-    });
+  
     wavesurfer.current.on("region-created", function (region, e) {
       console.log("region-created", region);
       console.log(regionsCreated);
@@ -160,6 +150,15 @@ const Waveform = () => {
       wavesurfer.current.setVolume(newVolume || 1);
     }
   };
+  const handleZoomChange = (e) => {
+    const { target } = e;
+    const newZoom = +target.value;
+
+    if (newZoom) {
+      setZoom(newZoom);
+      wavesurfer.current.zoom(newZoom);
+    }
+  };
 
   console.log("regions", regionsCreated);
 
@@ -168,7 +167,7 @@ const Waveform = () => {
       <div className="w-full ">
         <div id="waveform" ref={waveformRef} />
         <div id="wave-timeline" />
-        <div className="controls mt-4 flex flex-wrap items-center">
+        <div className="controls mt-4 flex flex-wrap items-center justify-between">
           <button
             onClick={handlePlayPause}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-1 rounded-sm w-[6rem] mr-4"
@@ -191,6 +190,21 @@ const Waveform = () => {
 
             <label htmlFor="volume" className="ml-2 font-bold">
               Volume
+            </label>
+          </div>
+          <div>
+            <input
+              type="range"
+              id="zoom"
+              name="zoom"
+              min="100"
+              max="1000"
+              step="20"
+              onChange={handleZoomChange}
+              defaultValue={zoom}
+            />
+            <label htmlFor="zoom" className="ml-2 font-bold">
+              Zoom
             </label>
           </div>
         </div>

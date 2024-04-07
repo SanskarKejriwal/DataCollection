@@ -5,7 +5,7 @@ import {getAudioById,postMetadata,getAllAudio,contributeAudio} from '../controll
 const audioRoutes = express.Router();
 
 audioRoutes.get('/audio/:id', getAudioById); 
-audioRoutes.get('/audio', getAllAudio); 
+audioRoutes.get('/audios', getAllAudio); //tested
 audioRoutes.put('/submit', postMetadata); //tested
 audioRoutes.get('/contribute', contributeAudio); //tested
 

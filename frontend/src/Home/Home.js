@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import LabLogo from "../resources/SpinLab.png"; // Import the JPEG for lab logo
+import CollegeLogo from "../resources/IITG_logo.png"; // Import the JPEG for college logo
 const Home = () => {
   return (
     // <div className="">
@@ -41,7 +42,7 @@ const Home = () => {
         <div className="flex space-x-2 md:space-x-6 md:m-4">
           <div className="md:w-20 w-10 h-60 md:h-96  overflow-hidden rounded-xl">
             <img
-              src="../src/resources/IITG_logo.png"
+              src={LabLogo}
               className="h-full w-full"
               alt=""
             />

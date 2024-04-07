@@ -5,38 +5,38 @@ const audioSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    timeStamps:[
+    userList:[
         {
-            startTime:{
-                type: Number,
+            name: {
+                type: String,
+                required: true
             },
-            endTime:{
-                type: Number,
-            }
-        }
-    ],
-    user:
-        {
             age: {
                 type: Number,
                 required: true,
-                min: [12, 'Age must be at least 12 years'],
+                min: [10, 'Age must be at least 10 years'],
                 max: [120, 'Age cannot exceed 120 years']
             },
+            timeStamps:[
+                {
+                    startTime:{
+                        type: Number,
+                    },
+                    endTime:{
+                        type: Number,
+                    }
+                }
+            ],
             gender: {
                 type: String,
-                enum: ['Male', 'Female', 'Other'],
+                enum: ["Male", "Female", "Other"],
                 required: true
             },
-            address: {
-                country: {
-                    type: String,
-                    required: true
-                },
-                city: {
-                    type: String,
-                    required: true
-                }
+            noise :{
+                type: String,
+                enum:["Clean","Noisy"],
+                required: true,
+                
             },
             isCoughPresent: {
                 type: Boolean,
@@ -47,7 +47,7 @@ const audioSchema = new mongoose.Schema({
                 min: [0, 'Cough count cannot be negative'],
                 default: 0
             } 
-        }
+        }]
     
 });
 

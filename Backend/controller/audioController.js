@@ -1,19 +1,19 @@
 import Audio from "../models/audio.js";
-import Count from "../models/count.js";
-import dotenv from 'dotenv';
+import Key from "../models/key.js";
+import dotenv from "dotenv";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 dotenv.config();
 
 export const getAudioById = async (req, res) => {
-  const id = req.params.id;
-
+  const id = parseInt(req.params.id);
   try {
     const audio = await Audio.find();
+    console.log(audio);
     const finalAudio = audio.filter((audio) => audio.audioID === id);
     console.log(finalAudio);
-    if (!finalAudio)
+    if (finalAudio.length==0)
       return res.status(404).json({ message: "Audio not found" });
 
     return res.status(200).json(finalAudio);
@@ -39,38 +39,26 @@ export const postMetadata = async (req, res) => {
 
   const audio = await Audio.find();
   const finalAudio = audio.filter(
-    (audio) => audio.audioID === metadata.audioID
+    (audio) => audio.audioID === metadata.audioDetails.audioID
   );
   console.log("final audio", finalAudio);
-  //   if (finalAudio.length > 0) {
-  //     console.log("Audio already exists");
-  //     const count = await Count.find();
-  //     await Count.findByIdAndUpdate(count[0]._id, { count: count[0].count + 1 });
-  //     await Audio.updateOne(
-  //       { audioID: metadata.audioID },
-  //       { $push: { userList: metadata.userList } }
-  //     );
-  //     return res.status(200).json({ message: "Audio updated" });
-  //   }
-  // Only one user can fill the form for a particular audio
-  if (finalAudio.length > 0) {
-    return res
-      .status(409)
-      .json({
-        message:
-          "Audio already exists. Try refreshing the page to get a new audio.",
-      });
-  } else {
-    const newPost = new Audio(metadata);
+    if (finalAudio.length>0 && finalAudio[0].userList?.length > 0) {
+      console.log("Audio already exists");
+      await Audio.updateOne(
+        { _id: finalAudio[0]._id },
+        { $push: { userList: metadata.audioDetails.userList} }
+      );
+      // await Key.findByIdAndDelete(metadata.keyDetails._id);
+      return res.status(200).json({ message: "Audio updated" });
+    }
+   else {
+    const newPost = new Audio(metadata.audioDetails);
     console.log("new post", newPost);
     try {
       await newPost.save();
-      const count = await Count.find();
-      await Count.findByIdAndUpdate(count[0]._id, {
-        count: count[0].count + 1,
-      });
+      // await Key.findByIdAndDelete(metadata.keyDetails._id);
       // newPost is returned as response if the save is successfull
-      return res.status(201).json(metadata);
+      return res.status(201).json(newPost);
     } catch (error) {
       return res.status(409).json({ message: error.message });
     }
@@ -78,7 +66,6 @@ export const postMetadata = async (req, res) => {
 };
 
 const CONNECTION_URL = process.env.MONGODB_URL;
-
 const s3 = new S3Client({
   region: "eu-north-1",
   credentials: {
@@ -99,12 +86,20 @@ const getURL = async (key) => {
 };
 
 export const contributeAudio = async (req, res) => {
-  const count = await Count.find();
-  console.log("count", count);
-  const url = await getURL(`${count[0].count}.wav`);
-  console.log(url);
+  const key = await Key.find();
+
+  if(key.length==0)
+    return res.status(404).json({ message: "No keys available" }
+  );
+
+  const randomKey = Math.random();
+
+  const finalKey = key[Math.floor(randomKey * (key.length - 1))].validKey;
+
+  const url = await getURL(`${finalKey}.wav`);
+
   return res.status(200).json({
     url: url,
-    audioID: count,
+    audio: key[Math.floor(randomKey * (key.length - 1))],
   });
 };

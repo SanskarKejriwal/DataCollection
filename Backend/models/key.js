@@ -1,10 +1,14 @@
 import mongoose from "mongoose";
 
 const keySchema = new mongoose.Schema({
-    validKeys: [{
+  validKey: 
+    {
+      
         type: Number,
-        required: true
-    }]
+        required: true,
+      
+    },
+  
 });
-const key = mongoose.model("key", keySchema);
-export default key;
+const Key = mongoose.model("Key", keySchema);
+export default Key;
