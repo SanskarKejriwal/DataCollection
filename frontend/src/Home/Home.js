@@ -5,10 +5,16 @@ import CollegeLogo from "../resources/IITG_logo.png"; // Import the JPEG for col
 const Home = () => {
   return (
     // <div className="">
-    <div className="flex justify-center bg-black  h-[100vh] p-8 w-full border-white border-4">
-      <div className="border-blue border-4 flex flex-col lg:flex-row max-w-7xl justify-center items-center p-2 space-y-3 w-full">
-        <div className="flex flex-col  text-white md:items-start items-center justify-between  space-y-3 px-8">
-          <div className="text-5xl md:text-7xl font-bold ">
+    <div className="flex justify-center bg-black  min-h-[100vh] p-16 w-full border-white border-4">
+      <div className="border-white border-4 flex flex-col  p-12  w-full">
+        {/* <div className="flex space-x-2 md:space-x-6 md:m-4"> */}
+        <div className=" mt-4  overflow-hidden flex w-full justify-between flex-wrap mb-12">
+          <img src={LabLogo} className="h-40 w-80" alt="" />
+          <img src={CollegeLogo} alt="College Logo" className="h-40 w-40" />
+        </div>
+        {/* </div> */}
+        <div className="flex flex-col text-white md:items-start items-center justify-between  space-y-3">
+          <div className="text-5xl md:text-7xl font-bold sm:text-5xl">
             Project Cough Counts{" "}
           </div>
           <div className="text-lg uppercase md:text-1xl   ">
@@ -37,15 +43,6 @@ const Home = () => {
                 Contribute
               </button>
             </Link>
-          </div>
-        </div>
-        <div className="flex space-x-2 md:space-x-6 md:m-4">
-          <div className="md:w-20 w-10 h-60 md:h-96  overflow-hidden rounded-xl">
-            <img
-              src={LabLogo}
-              className="h-full w-full"
-              alt=""
-            />
           </div>
         </div>
       </div>
