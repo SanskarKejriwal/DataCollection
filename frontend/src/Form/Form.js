@@ -2,6 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import Waveform from "../components/Wave";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Button from "@mui/material/Button";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Typography from "@mui/material/Typography";
 
 const Form = () => {
   const [name, setName] = useState("");
@@ -15,6 +24,7 @@ const Form = () => {
   const [loadUrl, setLoadUrl] = useState(false);
   const [isValidAge, setIsValidAge] = useState(true);
   const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +67,7 @@ const Form = () => {
       setIsValidAge(true);
     }
 
-    console.log("keyDetails",keyDetails);
+    console.log("keyDetails", keyDetails);
     let data = {
       keyDetails: {
         _id: keyDetails.audio._id,
@@ -79,7 +89,6 @@ const Form = () => {
       },
     };
 
-
     if (regionsCreated.length > 0) {
       regionsCreated.forEach((region) => {
         data.audioDetails.userList[0].timeStamps.push({
@@ -89,7 +98,7 @@ const Form = () => {
       });
     }
 
-    console.log("data",data);
+    console.log("data", data);
     try {
       const response = await axios.put("http://localhost:5001/submit", data);
       console.log("response", response);
@@ -100,8 +109,7 @@ const Form = () => {
       } else if (action === "exit") {
         navigate("/thank-you");
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
     }
   };
@@ -113,6 +121,13 @@ const Form = () => {
     setGender("Male");
     setCoughCount(0);
     setCoughPresent("");
+  };
+
+  const handleGuidelinesOpen = () => {
+    setOpen(true);
+  };
+  const handleGuidelinesClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -346,6 +361,60 @@ const Form = () => {
                     >
                       Exit
                     </button>
+                    <button
+                      onClick={handleGuidelinesOpen}
+                      className="mb-2 md:mb-0 w-[8rem] bg-gray-500 hover:bg-gray-600 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-md hover:shadow-lg"
+                    >
+                      Guidelines
+                    </button>
+                    <BootstrapDialog
+                      onClose={handleGuidelinesClose}
+                      aria-labelledby="customized-dialog-title"
+                      open={open}
+                    >
+                      <DialogTitle
+                        sx={{ m: 0, p: 2 }}
+                        id="customized-dialog-title"
+                      >
+                        Modal title
+                      </DialogTitle>
+                      <IconButton
+                        aria-label="close"
+                        onClick={handleGuidelinesClose}
+                        sx={{
+                          position: "absolute",
+                          right: 8,
+                          top: 8,
+                          color: (theme) => theme.palette.grey[500],
+                        }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                      <DialogContent dividers>
+                        <Typography gutterBottom>
+                          Cras mattis consectetur purus sit amet fermentum. Cras
+                          justo odio, dapibus ac facilisis in, egestas eget
+                          quam. Morbi leo risus, porta ac consectetur ac,
+                          vestibulum at eros.
+                        </Typography>
+                        <Typography gutterBottom>
+                          Praesent commodo cursus magna, vel scelerisque nisl
+                          consectetur et. Vivamus sagittis lacus vel augue
+                          laoreet rutrum faucibus dolor auctor.
+                        </Typography>
+                        <Typography gutterBottom>
+                          Aenean lacinia bibendum nulla sed consectetur.
+                          Praesent commodo cursus magna, vel scelerisque nisl
+                          consectetur et. Donec sed odio dui. Donec ullamcorper
+                          nulla non metus auctor fringilla.
+                        </Typography>
+                      </DialogContent>
+                      <DialogActions>
+                        {/* <Button autoFocus onClick={handleGuidelinesClose}>
+                          Save changes
+                        </Button> */}
+                      </DialogActions>
+                    </BootstrapDialog>
                   </div>
                 </div>
               </form>
@@ -356,7 +425,7 @@ const Form = () => {
       {loadUrl && (
         <>
           <div>
-            <div>No keys available</div>
+            <div>Error Occured or no audio available</div>
             <button
               onClick={() => navigate("/thank-you")}
               className="bg-blue-500 hover:bg-blue-600 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-md hover:shadow-lg"
