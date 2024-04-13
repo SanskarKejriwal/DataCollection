@@ -10,9 +10,7 @@ export const getAudioById = async (req, res) => {
   const id = parseInt(req.params.id);
   try {
     const audio = await Audio.find();
-    console.log(audio);
     const finalAudio = audio.filter((audio) => audio.audioID === id);
-    console.log(finalAudio);
     if (finalAudio.length==0)
       return res.status(404).json({ message: "Audio not found" });
 
@@ -24,9 +22,7 @@ export const getAudioById = async (req, res) => {
 
 export const getAllAudio = async (req, res) => {
   try {
-    console.log("Inside getAllAudio");
     const audio = await Audio.find();
-    console.log(audio);
     return res.status(200).json(audio);
   } catch (error) {
     return res.status(404).json({ message: error.message });
@@ -35,29 +31,24 @@ export const getAllAudio = async (req, res) => {
 
 export const postMetadata = async (req, res) => {
   const metadata = req.body;
-  console.log(metadata);
 
   const audio = await Audio.find();
   const finalAudio = audio.filter(
     (audio) => audio.audioID === metadata.audioDetails.audioID
   );
-  console.log("final audio", finalAudio);
     if (finalAudio.length>0 && finalAudio[0].userList?.length > 0) {
-      console.log("Audio already exists");
       await Audio.updateOne(
         { _id: finalAudio[0]._id },
         { $push: { userList: metadata.audioDetails.userList} }
       );
-      // await Key.findByIdAndDelete(metadata.keyDetails._id);
+      await Key.findByIdAndDelete(metadata.keyDetails._id);
       return res.status(200).json({ message: "Audio updated" });
     }
    else {
     const newPost = new Audio(metadata.audioDetails);
-    console.log("new post", newPost);
     try {
       await newPost.save();
-      // await Key.findByIdAndDelete(metadata.keyDetails._id);
-      // newPost is returned as response if the save is successfull
+      await Key.findByIdAndDelete(metadata.keyDetails._id);
       return res.status(201).json(newPost);
     } catch (error) {
       return res.status(409).json({ message: error.message });

@@ -12,10 +12,9 @@ const audioSchema = new mongoose.Schema({
                 required: true
             },
             age: {
-                type: Number,
-                required: true,
-                min: [10, 'Age must be at least 10 years'],
-                max: [120, 'Age cannot exceed 120 years']
+                type: String,
+                enum :["20-29","30-39","40-49","50-59","60-69","> 70"],
+                required: true
             },
             timeStamps:[
                 {

@@ -15,7 +15,7 @@ function randomRgbColor() {
   return `rgb(${r},${g},${b},0.3)`;
 }
 
-const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
+const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails }) => {
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
   const [playing, setPlay] = useState(false);
@@ -76,22 +76,16 @@ const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
       }
     });
 
-    console.log(wavesurfer.current);
-    console.log("wave regions", wavesurfer.current.regions);
-
     return () => wavesurfer.current.destroy();
   }, []);
 
   useEffect(() => {
     wavesurfer.current.on("region-click", function (region, e) {
-      console.log("region-click", region);
       e.stopPropagation();
       wavesurfer.current.play(region.start, region.end);
     });
-  
+
     wavesurfer.current.on("region-created", function (region, e) {
-      console.log("region-created", region);
-      console.log(regionsCreated);
       region.color = randomRgbColor();
       let lastRegion;
       if (regionsCreated.length === 0) {
@@ -103,13 +97,11 @@ const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
           )[1] - "0";
       }
 
-      console.log("lastRegion", lastRegion);
       region.attributes = {
         label: "Region " + `${lastRegion + 1}`,
       };
       let temp = [...regionsCreated, region];
 
-      console.log("temp", temp);
       setRegionsCreated(temp);
     });
   }, [regionsCreated]);
@@ -120,23 +112,9 @@ const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
   };
 
   const handleDelete = (id) => {
-    console.log("delete", id);
     wavesurfer.current.regions.list[id].remove();
     let temp = [...regionsCreated];
     temp = temp.filter((region) => region.id !== id);
-    // temp.forEach((region, index) => {
-    //   region.attributes = {
-    //     label: "Region " + `${index + 1}`,
-    //   };
-    // });
-    // Object.keys(wavesurfer.current.regions.list).forEach((key, index) => {
-    //   wavesurfer.current.regions.list[key].attributes = {
-    //     label: "Region " + `${index + 1}`,
-    //   };
-    //   console.log(wavesurfer.current.regions.list[key]);
-    // });
-
-    console.log(wavesurfer.current.regions.list);
 
     setRegionsCreated(temp);
   };
@@ -159,8 +137,6 @@ const Waveform = ({ regionsCreated, setRegionsCreated, keyDetails}) => {
       wavesurfer.current.zoom(newZoom);
     }
   };
-
-  console.log("regions", regionsCreated);
 
   return (
     <>
