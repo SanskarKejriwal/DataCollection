@@ -9,6 +9,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import IconButton from "@mui/material/IconButton";
 import { IoInformationCircleOutline } from "react-icons/io5";
+import Loading from "../components/Loading";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -28,14 +29,18 @@ const Form = () => {
   const [isCoughPresent, setCoughPresent] = useState(""); // Initialize state for the selected radio button
   const [regionsCreated, setRegionsCreated] = useState([]);
   const [keyDetails, setKeyDetails] = useState({});
-  const [loadUrl, setLoadUrl] = useState(false);
+  const [loadUrl, setLoadUrl] = useState(true);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = useState(true);
+
+  console.log(window.location.href);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/contribute", {
+        console.log("fetching data");
+        const response = await axios.get("https://projectawaaz.onrender.com/contribute", {
           headers: {
             "Access-Control-Allow-Origin": "*",
             "Content-Type": "application/json",
@@ -43,9 +48,12 @@ const Form = () => {
             mode: "no-cors",
           },
         });
+        console.log(response.data);
         setKeyDetails(response.data);
+        setLoading(false);
       } catch (error) {
-        setLoadUrl(true);
+        setLoading(false);
+        setLoadUrl(false);
       }
     };
     fetchData();
@@ -63,8 +71,6 @@ const Form = () => {
   };
   const handleSubmit = async (e, action = "next") => {
     e.preventDefault();
-
-    console.log("keyDetails", keyDetails);
     let data = {
       keyDetails: {
         _id: keyDetails.audio._id,
@@ -95,20 +101,15 @@ const Form = () => {
       });
     }
 
-    console.log("data", data);
     try {
-      const response = await axios.put("http://localhost:5001/submit", data);
-      console.log("response", response);
+      const response = await axios.put("https://projectawaaz.onrender.com/submit", data);
       if (action === "next") {
-        console.log("next");
-        // navigate("/form");
         window.location.reload();
       } else if (action === "exit") {
         navigate("/thank-you");
       }
     } catch (error) {
-      console.log(error);
-      window.alert("Error Occured");
+      window.alert("Error Occured or fill all fields before submitting");
     }
   };
 
@@ -130,7 +131,7 @@ const Form = () => {
 
   return (
     <>
-      {keyDetails && keyDetails.url && (
+      {!loading && keyDetails && keyDetails.url && (
         <div
           className="relative min-h-screen  flex items-center justify-center bg-center bg-black py-[4rem] px-[1.5rem] min-[500px]:px-[4rem] sm:px-[6rem] 
       md:px[10rem] "
@@ -427,7 +428,9 @@ const Form = () => {
         </div>
       )}
 
-      {loadUrl && (
+      {loading && <Loading />}
+
+      {!loadUrl && (
         <>
           <div className="h-full flex justify-center items-center">
             <div className="h-full flex flex-col justify-center items-center">
